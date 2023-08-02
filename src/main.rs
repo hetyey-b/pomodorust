@@ -25,18 +25,11 @@ fn main() {
 
     let cycles: u32 = args[1].parse::<u32>().expect("Error parsing input");
 
-    let mut pomodoro_timer = pomodoro::Pomodoro::new(1500, 300, cycles);
-    println!("Starting cycle 1");
+    let mut pomodoro_timer = pomodoro::Pomodoro::new(15 * 60, 5 * 60, cycles);
     let mut work_cycle_result = pomodoro_timer.start_work_cycle();
 
     while work_cycle_result.is_ok() {
         pause();
-        println!(
-            "Starting cycle {}",
-            pomodoro_timer.get_iterations_done() + 1
-        );
         work_cycle_result = pomodoro_timer.start_work_cycle();
-
-        println!("{:?}", work_cycle_result);
     }
 }

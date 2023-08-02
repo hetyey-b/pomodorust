@@ -1,6 +1,8 @@
 use std::process::Command;
 use std::{thread, time};
 
+const PROGRESS_BAR_SIZE: u16 = 50;
+
 pub struct Pomodoro {
     work_length: u32,
     rest_length: u32,
@@ -25,6 +27,13 @@ impl Pomodoro {
     }
 
     pub fn start_work_cycle(&mut self) -> Result<String, String> {
+        fn progress_bar_status(current: u32, total: u32) -> u16 {
+            let cur = current as f64;
+            let tot = total as f64;
+            let percentage = (cur / tot) * (PROGRESS_BAR_SIZE as f64);
+            return percentage.round() as u16;
+        }
+
         if self.working {
             return Err("Already working!".to_owned());
         }
@@ -46,7 +55,19 @@ impl Pomodoro {
         let one_second = time::Duration::from_secs(1);
         for i in 0..self.work_length {
             thread::sleep(one_second);
-            println!("Working: {}/{}", i + 1, self.work_length);
+
+            print!("{}c", 27 as char);
+
+            println!("Cycle {} - Work", self.iterations_done + 1);
+
+            let n = progress_bar_status(i + 1, self.work_length);
+            for _i in 0..n {
+                print!("|");
+            }
+            for _i in n..PROGRESS_BAR_SIZE {
+                print!("-");
+            }
+            print!("\n");
         }
 
         self.working = false;
@@ -74,13 +95,21 @@ impl Pomodoro {
 
         for i in 0..self.rest_length {
             thread::sleep(one_second);
-            println!("Resting: {}/{}", i + 1, self.work_length);
+
+            print!("{}c", 27 as char);
+
+            println!("Cycle {} - Rest", self.iterations_done + 1);
+
+            let n = progress_bar_status(i + 1, self.rest_length);
+            for _i in 0..n {
+                print!("|");
+            }
+            for _i in n..PROGRESS_BAR_SIZE {
+                print!("-");
+            }
+            print!("\n");
         }
 
         return Ok("Ok".to_owned());
-    }
-
-    pub fn get_iterations_done(&self) -> u32 {
-        return self.iterations_done;
     }
 }
